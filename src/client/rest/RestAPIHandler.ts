@@ -1,6 +1,6 @@
 import Client from "../Client.ts";
 import { headers } from "../../constants/Payloads.ts";
-import { Constants, ENDPOINTS } from "../../constants/Constants.ts";
+import { Constants, ENDPOINTS, StatusCode } from "../../constants/Constants.ts";
 import Message from "../../models/Message.ts";
 import { MessageOptions } from "../../typedefs/MessageOptions.ts";
 
@@ -79,6 +79,28 @@ export default class RestAPIHandler {
       },
     );
     return response.json();
+  }
+
+  async deleteMessage(channelId: string, messageId: string) {
+    return fetch(
+      `${Constants.API}/${ENDPOINTS.CHANNELS}/${channelId}/${ENDPOINTS.MESSAGES}/${messageId}`,
+      {
+        method: 'DELETE',
+        headers
+      }
+    );
+  }
+
+  async createReaction(channelId: string, messageId: string, emoji: any): Promise<Response> {
+    const response = await fetch (
+      `${Constants.API}/${ENDPOINTS.CHANNELS}/${channelId}/${ENDPOINTS.MESSAGES}/${messageId}/${ENDPOINTS.REACTIONS}/${emoji}/@me`,
+      {
+        method: 'PUT',
+        headers,
+      }
+    );
+    if (response.status === StatusCode.NO_CONTENT) return response;
+    throw new Error(await response.text());
   }
 
   set token(token: string) {

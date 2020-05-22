@@ -11,13 +11,21 @@ import { TextChannel } from "../models/channels/TextChannel.ts";
 import { CategoryChannel } from "../models/channels/CategoryChannel.ts";
 import { VoiceChannel } from "../models/channels/VoiceChannel.ts";
 import { BaseChannel } from "../models/channels/BaseChannel.ts";
+<<<<<<< HEAD
+=======
+import Message from '../models/Message.ts';
+>>>>>>> master
 
 export function resolveChannels(
   client: Client,
   guild: Guild,
   channels: Array<any>,
 ) {
+<<<<<<< HEAD
   const channelsMap = new Map<string, GuildChannel>();
+=======
+  const channelsMap = new Collection<string, GuildChannel>();
+>>>>>>> master
   for (const c of channels) {
     let channel;
     switch (c.type) {
@@ -55,40 +63,24 @@ export function resolveChannel(
 }
 
 export function resolveEmojis(client: Client, emojis: Array<any>) {
-  const emojiMap = new Map<string, Emoji>();
+  const emojiMap = new Collection<string, Emoji>();
   for (const emoji of emojis) {
     const emojiRoles = emoji.roles;
-    const roles = new Map();
-    for (const role of emojiRoles) {
-      roles.set(
-        role.id,
-        new Role(
-          role.id,
-          role.name,
-          role.color,
-          role.hoist,
-          role.position,
-          role.permissions,
-          role.managed,
-          role.mentionable,
-        ),
-      );
-    }
-    emojiMap.set(
-      emoji.id,
-      new Emoji(
-        emoji.id,
-        emoji.name,
-        roles,
-        emoji.users,
-        emoji.required_colons,
-        emoji.managed,
-        emoji.animated,
-        emoji.available,
-      ),
-    );
+    const roles = new Collection();
+    for (const role of emojiRoles) roles.set(role.id, buildRoleInstance(role));
+    const emojiInstance = buildEmojiInstance(emoji, roles);
+    emojiMap.set(emojiInstance.id, emojiInstance);
+    client.emojis.set(emojiInstance.id, emojiInstance);
   }
   return emojiMap;
+}
+
+export function buildEmojiInstance(emoji: any, roles: Collection<string, Role>): Emoji {
+  return new Emoji(emoji.id, emoji.name, roles, emoji.users, emoji.required_colons, emoji.managed, emoji.animated, emoji.available)
+}
+
+export function buildRoleInstance(role: any): Role {
+  return new Role(role.id, role.name,role.color,role.hoist,role.position,role.permissions,role.managed,role.mentionable)
 }
 
 export function resolveRoles(client: Client, roles: Array<any>) {
@@ -158,7 +150,7 @@ export function resolveGuildMembersAndUsers(
 }
 export function buildGuildInstance(
   roles: Collection<string, Role>,
-  emojis: Map<string, Emoji>,
+  emojis: Collection<string, Emoji>,
   guild: any,
 ) {
   return new Guild(
@@ -257,6 +249,72 @@ export function buildTextChannel(client: Client, guild: Guild, c: any) {
 }
 
 export function buildGroupDMChannel(client: Client, guild: Guild, c: any) {
+}
+
+export async function buildMessage(client: Client, message_payload: any) {
+
+  const {
+    channel_id,
+    guild_id,
+    author,
+  } = message_payload;
+
+  let channel = client.channels.get(channel_id);
+  let guild: Guild = client.guilds.get(guild_id);
+  let user: User = client.users.get(author.id);
+  if (!channel) {
+    const now = performance.now();
+    channel = await client.rest.fetchChannel(channel_id);
+    const end = performance.now();
+    console.log(`Took ${Math.round(end - now)}ms to fetch channel.`);
+  }
+
+  if (!guild) {
+    const now = performance.now();
+    guild = await client.rest.fetchGuild(guild_id);
+    const end = performance.now();
+    console.log(`Took ${Math.round(end - now)}ms to fetch guild.`);
+  }
+
+  if (!user) {
+    const now = performance.now();
+    user = await client.rest.fetchUser(author.id);
+    const end = performance.now();
+    console.log(`Took ${Math.round(end - now)}ms to fetch guild.`);
+  }
+  const member = guild.members.get(author.id);
+  const {
+    id,
+    content,
+    timestamp,
+    edited_timestamp,
+    tts,
+    mention_everyone,
+    attachments,
+    embeds,
+    reactions,
+    nonce,
+    pinned,
+    type,
+  } = message_payload;
+  return new Message(
+    id,
+    channel,
+    guild,
+    user,
+    member,
+    content,
+    timestamp,
+    edited_timestamp,
+    tts,
+    mention_everyone,
+    attachments,
+    embeds,
+    reactions,
+    nonce,
+    pinned,
+    type,
+  );
 }
 
 export function getChannelType(type: number): ChannelType {

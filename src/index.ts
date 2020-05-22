@@ -1,7 +1,8 @@
-import { Client, GuildChannel } from "../mod.ts";
+import { Client } from "../mod.ts";
 import "https://deno.land/x/dotenv/load.ts";
 import Guild from "./models/Guild.ts";
 import Message from "./models/Message.ts";
+
 
 const client = new Client();
 client.login(Deno.env.get("BOT_TOKEN")!.toString());
@@ -10,30 +11,19 @@ client.on("ready", () => {
   console.log("Bot has logged in.");
 });
 
-client.on("guildCreate", (guild: Guild) => {
-  console.log(guild.name);
-});
+client.on("message", async (message: Message) => {
 
-client.on("message", (message: Message) => {
+  console.log(message.channel.messages.size);
   if (message.content === "?hello") {
-    message.channel.send("hello");
-  } else if (message.content === "?embed") {
-    message.channel.send({
-      content: "Hello",
-      embed: {
-        title: "Hi",
-        description: "Yoooo",
-      },
-    });
+    const msg = await message.channel.send("hello");
+    msg.delete();
+  } else if (message.content === '?react') {
+    const msg = await message.react(':python:579255589259968512a');
   }
 });
 
-client.on("channelCreate", (channel: GuildChannel) => {
-  console.log(channel);
-})
-
 client.on("debug", (data: any) => {
-  console.log("Debug data: ", data);
+  console.log(data);
 });
 
 // deno run --allow-read --allow-net --allow-env --allow-hrtime ./src/index.ts

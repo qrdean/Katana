@@ -74,10 +74,28 @@ export enum OPCODE {
 }
 
 export enum ENDPOINTS {
+<<<<<<< HEAD
   USERS = "users",
   USER_GUILDS = "users/@me/guilds",
   GUILDS = "guilds",
   CHANNELS = "channels",
   MESSAGES = "messages",
   MEMBERS = "members",
+=======
+  USERS = 'users',
+  USER_GUILDS = 'users/@me/guilds',
+  GUILDS = 'guilds',
+  CHANNELS = 'channels',
+  MESSAGES = 'messages',
+  MEMBERS = 'members',
+  REACTIONS = 'reactions',
+>>>>>>> master
+}
+
+export enum StatusCode {
+  OK = 200,
+  NO_CONTENT = 204,
+  CREATED = 201,
+  BAD = 400,
+  NOT_FOUND = 404,
 }

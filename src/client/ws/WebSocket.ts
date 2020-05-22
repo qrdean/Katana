@@ -34,19 +34,9 @@ export default class WebSocketManager extends EventEmitter {
             break;
         }
         if (event) {
-          if (implementedHandlers.includes(event)) {
-            try {
-              const { default: module } = await import(
-                `../../handlers/${event}.ts`
-              );
-              module(this.client, payload);
-            } catch (err) {
-              // console.log(err);
-            }
-          } else {
-            console.log("Handler not yet implemented using 'DEBUG' handler");
+          try {
             const { default: module } = await import(
-              `../../handlers/DEBUG.ts`
+              `../../handlers/${event}.ts`
             );
             module(this.client, payload);
           }
@@ -69,10 +59,3 @@ export default class WebSocketManager extends EventEmitter {
     this.socket.send(JSON.stringify(Identify));
   }
 }
-
-export const implementedHandlers = [
-  "GUILD_CREATE",
-  "MESSAGE_CREATE",
-  "READY",
-  "CHANNEL_CREATE",
-]
